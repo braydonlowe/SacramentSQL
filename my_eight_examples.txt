@@ -1,0 +1,159 @@
+Zero-Shot:
+    "Which member passed the sacrament most recently?"
+            Generated SQL: SELECT QM.Name
+            FROM QuoremMembers QM
+            WHERE QM.LastPassedDate = (SELECT MAX(LastPassedDate) FROM QuoremMembers);
+
+            Answer: The member who passed the sacrament most recently is Matt Howels.
+
+
+    "How many times has Mark Lee passed the sacrament?"
+        Question: How many times has Mark Lee passed the sacrament?
+        Generated SQL: SELECT TimesPassed
+        FROM QuoremMembers
+        WHERE Name = 'Mark Lee';
+
+        Answer: Mark Lee has passed the sacrament 2 times.
+
+    "List all members who are unavailable to serve."
+            There seems to be missing information about how we determine if a member is unavailable to serve. However, I will make an assumption for this case. If a member has passed more than 3 times, let's assume they are unavailable to serve. Here is an SQL statement for it:
+
+            ```sql
+            SELECT *
+            FROM QuoremMembers
+            WHERE TimesPassed > 3;
+            ```
+
+            If you have a specific criteria to determine if a member is unavailable to serve, such as a field in the database indicating this, please provide the additional information so I can provide a more accurate SQL query.
+
+            SQL ONLY:
+
+            SELECT *
+            FROM QuoremMembers
+            WHERE TimesPassed > 3;
+
+
+
+            Answer: Based on the provided SQL query results, there are no members who are unavailable to serve. All the members listed including John Doe, Ben Davis, Don Marks, and Matt Howels are available.
+
+
+    "What is the email address of the member who has passed the sacrament the most?"
+
+            Generated SQL: SELECT Email
+            FROM QuoremMembers
+            WHERE MemberID = (
+            SELECT MemberID
+            FROM QuoremMembers
+            ORDER BY TimesPassed DESC
+            LIMIT 1
+            );
+
+
+            Sanitized Data ONLY:
+            {'columns': ['Email'], 'data': [('donmarks17@example.com',)]}
+
+
+            Answer: The member who has passed the sacrament the most has the email address donmarks17@example.com.
+
+Single-domain Few-shot Text-to-SQL:
+    "How many blessers and passers are scheduled for the upcoming Sunday?"
+        This query will count the number of blessers and passers scheduled for the upcoming Sunday, grouped by their roles.
+
+        SQL ONLY:
+
+        SELECT
+            Role,
+            COUNT(MemberID) as MembersCount
+        FROM
+            Week
+        WHERE
+            SundayDate = 'XXXX-XX-XX'
+        GROUP BY
+            Role;
+
+        Answer: There are no blessers or passers scheduled for the upcoming Sunday.
+
+
+    "Which members have passed sacrament on January 5th?"
+        Sure, here is a query to get members who passed the sacrament on January 5th:
+
+        ```sql
+        SELECT QM.Name
+        FROM QuoremMembers QM
+        JOIN Week W ON QM.MemberID = W.MemberID
+        WHERE W.SundayDate = '2022-01-05' AND W.Role = 'Passer';
+        ```
+
+        This query will return the names of members who passed the sacrament on January 5th. Please replace '2022' with the actual year if needed.
+
+        SQL ONLY:
+
+        SELECT QM.Name
+        FROM QuoremMembers QM
+        JOIN Week W ON QM.MemberID = W.MemberID
+        WHERE W.SundayDate = '2022-01-05' AND W.Role = 'Passer';
+
+        Answer: No members have passed the sacrament on January 5th.
+
+
+
+Cross-domain Few-shot Text-to-SQL:
+    "Which members are available to serve next weekend?"
+         To generate this query, I'm going to assume that 'available to serve' means that a member does not have a role assigned for the next Sunday date in the 'Week' table. I will also assume that the current date is a representation of "now." Remember to substitute with the actual current date if this is not automatically updated in your SQL environment.
+
+            Here is the SQL statement:
+
+            ```sql
+            SELECT qm.MemberID, qm.Name
+            FROM QuoremMembers qm
+            WHERE qm.MemberID NOT IN (
+                SELECT w.MemberID
+                FROM Week w
+                WHERE w.SundayDate = (
+                    SELECT MIN(w1.SundayDate)
+                    FROM Week w1
+                    WHERE w1.SundayDate > CURDATE()
+                )
+            )
+            ```
+
+            This SQL statement will return the `MemberID` and `Name` of all members from the `QuoremMembers` table who do not have any roles assigned for the next coming Sunday date in the `Week` table.
+
+            SQL ONLY:
+
+            SELECT qm.MemberID, qm.Name
+            FROM QuoremMembers qm
+            WHERE qm.MemberID NOT IN (
+                SELECT w.MemberID
+                FROM Week w
+                WHERE w.SundayDate = (
+                    SELECT MIN(w1.SundayDate)
+                    FROM Week w1
+                    WHERE w1.SundayDate > CURDATE()
+                )
+            )
+
+
+
+            Answer: I'm sorry, but there seems to be an error with the database function. It's not able to determine the current date, and because of this, we can't provide information about which members are available to serve next weekend. We'll need to fix this technical issue first before we can get your answer.
+
+
+    "What roles have been assigned to each member this week?"
+        What roles have been assigned to each member this week?
+        Generated SQL: SELECT QM.Name, W.Role
+        FROM QuoremMembers QM
+        JOIN Week W ON QM.MemberID = W.MemberID
+        WHERE W.SundayDate >= CURDATE() - INTERVAL DAYOFWEEK(CURDATE()) DAY
+        AND W.SundayDate < CURDATE() - INTERVAL DAYOFWEEK(CURDATE()) DAY + INTERVAL 7 DAY;
+
+        SQL ONLY:
+        SELECT QM.Name, W.Role
+        FROM QuoremMembers QM
+        JOIN Week W ON QM.MemberID = W.MemberID
+        WHERE W.SundayDate >= CURDATE() - INTERVAL DAYOFWEEK(CURDATE()) DAY
+        AND W.SundayDate < CURDATE() - INTERVAL DAYOFWEEK(CURDATE()) DAY + INTERVAL 7 DAY;
+
+
+        Answer: I'm sorry, but it seems there's a syntax error in the database query related to 'DAYOFWEEK'. This means that we're currently unable to fetch the information about the roles assigned to each member this week. We will need to fix this error to get the requested details.
+
+        
